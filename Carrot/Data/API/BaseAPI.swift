@@ -15,22 +15,32 @@ protocol BaseAPI {
 }
 
 extension BaseAPI {
-    var requestURL: URL? {
-        guard let parameters else {
-            return URL(string: "\(baseURL)/\(path)")
-        }
-        
-        var components = URLComponents(string: baseURL)
-        components?.path = path
-        
-        components?.queryItems = parameters.map { key, value in
-            URLQueryItem(name: key, value: value)
+    private var requestURL: URL? {
+        guard let base = URL(string: baseURL) else { return nil }
+
+        var components = URLComponents(
+            url: base.appendingPathComponent(path),
+            resolvingAgainstBaseURL: false
+        )
+
+        if let parameters, !parameters.isEmpty {
+            components?.queryItems = parameters.map { key, value in
+                URLQueryItem(name: key, value: value)
+            }
         }
         
         return components?.url
     }
+    
+    var urlRequest: URLRequest? {
+        guard let url = requestURL else { return nil }
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue   // GET, POST 등
+        request.timeoutInterval = 20
+        return request
+    }
 }
 
-enum Method {
-    case get
+enum Method: String {
+    case get = "GET"
 }

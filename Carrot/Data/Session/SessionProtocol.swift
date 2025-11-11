@@ -7,6 +7,8 @@
 
 import Foundation
 
-protocol SessionProtocol {}
+protocol SessionProtocol {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+}
 
 extension URLSession: SessionProtocol {}

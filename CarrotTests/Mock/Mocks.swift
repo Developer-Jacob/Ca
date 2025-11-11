@@ -36,19 +36,32 @@ final class MockBookDataSource: BookDataSource {
     private(set) var lastEndpointPath: String?
 
     func enqueue(json: Data, endpoint: ItBookAPI) {
-        let key = endpoint.requestURL?.absoluteString ?? UUID().uuidString
+        let key = endpoint.urlRequest?.url?.absoluteString ?? UUID().uuidString
         responses[key] = json
     }
 
     func perform<T: Decodable>(_ endpoint: ItBookAPI) async throws -> T {
-        guard let url = endpoint.requestURL else { throw APIError.invalidResponse }
-        lastEndpointPath = url.path
-        print(url.absoluteString)
-        print(responses)
-        guard let data = responses[url.absoluteString] else {
+        guard let url = endpoint.urlRequest?.url?.absoluteString else { throw APIError.invalidResponse }
+        lastEndpointPath = endpoint.urlRequest?.url?.path()
+        guard let data = responses[url] else {
             throw APIError.server("에러")
         }
         return try JSONDecoder().decode(T.self, from: data)
+    }
+}
+
+final class MockSession: SessionProtocol {
+    var nextData: Data?
+    var nextResponse: URLResponse?
+    var nextError: Error?
+    private(set) var recordedRequests: [URLRequest] = []
+
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        recordedRequests.append(request)
+        if let error = nextError { throw error }
+        let data = nextData ?? Data()
+        let response = nextResponse ?? HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+        return (data, response)
     }
 }
 
