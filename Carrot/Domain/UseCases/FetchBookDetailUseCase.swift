@@ -9,14 +9,14 @@ protocol FetchBookDetailUseCase {
     func execute(id: String) async throws -> BookDetail
 }
 
-struct DefaultFetchBookDetailUseCase {
-    private let repository: BookRepository
+struct DefaultFetchBookDetailUseCase: FetchBookDetailUseCase {
+    private let bookRepository: BookRepository
 
-    init(repository: BookRepository) {
-        self.repository = repository
+    init(bookRepository: BookRepository) {
+        self.bookRepository = bookRepository
     }
 
     func execute(id: String) async throws -> BookDetail {
-        try await repository.fetchDetail(id: id)
+        try await bookRepository.fetchDetail(id: id)
     }
 }

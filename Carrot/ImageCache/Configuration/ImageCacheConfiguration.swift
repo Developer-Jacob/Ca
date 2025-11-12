@@ -32,11 +32,11 @@ struct ImageCacheConfiguration {
         self.defaultTTL = defaultTTL
         self.diskDirectoryName = diskDirectoryName
     }
-}
-
-private enum Const {
-    static let defaultMemoryCapacity: Int =  20 * 1024 * 1024   //20MB
-    static let defaultDiskCapacity: Int =  100 * 1024 * 1024    //100MB
-    static let defaultTTL: TimeInterval =  6 * 60 * 60 //6Hour
-    static let defaultDirectoryName: String = "com.carrot.imagecache"
+    
+    private enum Const {
+        static let defaultMemoryCapacity: Int =  20 * 1024 * 1024   //20MB
+        static let defaultDiskCapacity: Int =  100 * 1024 * 1024    //100MB
+        static let defaultTTL: TimeInterval =  6 * 60 * 60 //6Hour
+        static let defaultDirectoryName: String = "com.carrot.imagecache"
+    }
 }

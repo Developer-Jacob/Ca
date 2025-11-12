@@ -16,7 +16,7 @@ protocol ImageLoading {
 /// 커스텀 메모리/디스크 캐시, 네트워크를 활요해 이미지를 반환하는 서비스
 /// Memory -> Disk -> Remote
 /// Disk 히트시 메모리에 저장해 일관성 유지
-final class ImageService: ImageLoading {
+final actor ImageService: ImageLoading {
     private let cache: ImageCacheProvider
     private let remote: ImageRemoteProvider
     private var tasks: [URL: Task<Data?, Never>] = [:]
@@ -47,15 +47,16 @@ final class ImageService: ImageLoading {
         if let item = await cache.data(for: url) {
             return item.data
         }
-
+        
         if let existing = tasks[url] {
             return await existing.value
         }
 
         let task = Task<Data?, Never> { [weak self] in
             guard let self else { return nil }
-            defer { Task { self.removeTask(for: url) } }
+            defer { Task { await self.removeTask(for: url) } }
             do {
+                print("Carrot: Remote fetch. key: \(url)")
                 let data = try await self.remote.fetchData(from: url)
                 await self.cache.store(data, for: url)
                 return data

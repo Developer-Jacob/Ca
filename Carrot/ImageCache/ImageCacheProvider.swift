@@ -29,11 +29,13 @@ actor ImageCacheProvider {
         let now = Date.now
         
         if let item = await memoryCache.data(for: key, now: now) {
+            print("Carrot: Memory cache hit. key: \(key)")
             return item
         }
         
         if let item = await diskCache.data(for: key, now: now) {
             // 디스크만 존재시 메모리 업데이트
+            print("Carrot: Disk cache hit. key: \(key)")
             await memoryCache.store(item.data, for: key, expirationDate: item.expirationDate)
             return item
         }
