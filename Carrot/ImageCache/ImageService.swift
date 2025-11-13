@@ -25,7 +25,7 @@ final actor ImageService: ImageLoading {
     ///   - cacheProvider: 메모리, 디스크 캐시
     ///   - remoteProvider: 네트워크
     init(
-        cacheProvider: ImageCacheProvider = ImageCacheProvider(configuration: ImageCacheConfiguration()),
+        cacheProvider: ImageCacheProvider,
         remoteProvider: ImageRemoteProvider = DefaultImageRemoteProvider()
     ) {
         self.cache = cacheProvider
@@ -56,7 +56,7 @@ final actor ImageService: ImageLoading {
             guard let self else { return nil }
             defer { Task { await self.removeTask(for: url) } }
             do {
-                print("Carrot: Remote fetch. key: \(url)")
+//                print("Carrot image cache: Remote fetch. key: \(url)")
                 let data = try await self.remote.fetchData(from: url)
                 await self.cache.store(data, for: url)
                 return data

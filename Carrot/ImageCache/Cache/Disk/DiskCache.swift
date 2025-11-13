@@ -27,22 +27,29 @@ struct DiskCacheManifest: Codable {
 
 protocol DiskCaching {
     func data(for key: String, now: Date) async -> CacheItem?
-    func store(_ data: Data, for key: String, expirationDate: Date?) async
+    func store(_ data: Data, for key: String) async
 }
 
 actor DiskCache: DiskCaching {
     private let fileManager = FileManager.default
     private let capacity: Int       // 최대사이즈
+    private let cacheExpirationInterval: TimeInterval
     private let directoryURL: URL
     private let manifestURL: URL
     private var manifest: DiskCacheManifest
     private let policy: DiskEvictionPolicy  // 만료, 삭제 정책
     
-    init(capacity: Int, directoryName: String, policy: DiskEvictionPolicy = LRUDiskEvictionPolicy()) {
+    init(
+        capacity: Int,
+        directoryName: String,
+        cacheExpirationInterval: TimeInterval,
+        policy: DiskEvictionPolicy = LRUDiskEvictionPolicy()
+    ) {
         self.capacity = capacity
         let caches = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
         self.directoryURL = caches.appendingPathComponent(directoryName, isDirectory: true)
         self.manifestURL = directoryURL.appendingPathComponent("manifest.json")
+        self.cacheExpirationInterval = cacheExpirationInterval
         self.policy = policy
         
         if !fileManager.fileExists(atPath: directoryURL.path) {
@@ -81,7 +88,7 @@ actor DiskCache: DiskCaching {
         return CacheItem(data: data, expirationDate: record.expirationDate)
     }
     
-    func store(_ data: Data, for key: String, expirationDate: Date?) async {
+    func store(_ data: Data, for key: String) async {
         let size = data.count
         // 단일파일 용량이 전체보다 크면 캐시x
         guard size <= capacity else { return }
@@ -96,6 +103,7 @@ actor DiskCache: DiskCaching {
         }
         
         let now = Date.now
+        let expirationDate = now.addingTimeInterval(cacheExpirationInterval)
         let record = DiskCacheRecord(
             fileName: fileName,
             fileSize: size,

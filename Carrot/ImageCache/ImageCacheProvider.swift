@@ -12,10 +12,9 @@ actor ImageCacheProvider {
     private let memoryCache: MemoryCaching
     private let configuration: ImageCacheConfiguration
     
-    init(configuration: ImageCacheConfiguration) {
-        let capacity = configuration.diskCapacity
-        self.diskCache = DiskCache(capacity: capacity, directoryName: configuration.diskDirectoryName)
-        self.memoryCache = MemoryCache(capacity: capacity)
+    init(configuration: ImageCacheConfiguration, memoryCache: MemoryCaching, diskCache: DiskCaching) {
+        self.diskCache = diskCache
+        self.memoryCache = memoryCache
         self.configuration = configuration
     }
     
@@ -29,14 +28,14 @@ actor ImageCacheProvider {
         let now = Date.now
         
         if let item = await memoryCache.data(for: key, now: now) {
-            print("Carrot: Memory cache hit. key: \(key)")
+            print("MemoryCache hit. key: \(key)")
             return item
         }
         
         if let item = await diskCache.data(for: key, now: now) {
             // 디스크만 존재시 메모리 업데이트
-            print("Carrot: Disk cache hit. key: \(key)")
-            await memoryCache.store(item.data, for: key, expirationDate: item.expirationDate)
+            print("DiskCache hit. key: \(key)")
+            await memoryCache.store(item.data, for: key)
             return item
         }
         return nil
@@ -44,18 +43,10 @@ actor ImageCacheProvider {
     
     func store(_ data: Data, for url: URL) async {
         let key = cacheKey(for: url)
-        let now = Date.now
-        let expirationDate = now.addingTimeInterval(configuration.defaultTTL)
         
-        // 단일 파일이 최대용량 보다 크다면 캐시 하지 않음
-        if data.count <= configuration.memoryCapacity {
-            await memoryCache.store(data, for: key, expirationDate: expirationDate)
-        }
+        await memoryCache.store(data, for: key)
         
-        // 단일 파일이 최대용량 보다 크다면 캐시 하지 않음
-        if data.count <= configuration.diskCapacity {
-            await diskCache.store(data, for: key, expirationDate: expirationDate)
-        }
+        await diskCache.store(data, for: key)
     }
 }
 

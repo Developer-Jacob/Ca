@@ -7,8 +7,6 @@
 
 import Foundation
 
-/// 커스텀 이미지 캐시에 필요한 설정값
-/// 환경별 메모리/디스크 한도, TTL
 struct ImageCacheConfiguration {
     let memoryCapacity: Int
     let diskCapacity: Int
@@ -16,11 +14,10 @@ struct ImageCacheConfiguration {
     let diskDirectoryName: String
 
     /// - Parameters:
-    ///   - memoryCapacity: 메모리 LRU 캐시가 사용할 수 있는 최대 바이트 수
-    ///   - diskCapacity: 디스크에 저장할 수 있는 최대 바이트 수
-    ///   - defaultTTL: 별도 TTL을 넘기지 않았을 때 기본 만료 시간
-    ///   - diskDirectoryName: Caches 디렉터리 하위의 저장 폴더명
-    ///   - dateProvider: 테스트 편의를 위한 시계 추상화
+    ///   - memoryCapacity: 메모리 캐시 용량
+    ///   - diskCapacity: 디스크 캐시 용량
+    ///   - defaultTTL: 기본 만료 시간
+    ///   - diskDirectoryName: 디스크 캐시 디렉토리
     init(
         memoryCapacity: Int = Const.defaultMemoryCapacity,
         diskCapacity: Int = Const.defaultDiskCapacity,

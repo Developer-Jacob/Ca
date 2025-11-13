@@ -6,21 +6,6 @@
 //
 
 import UIKit
-struct AppEnvironment {
-    let searchUseCase: SearchBooksUseCase
-    let detailUseCase: FetchBookDetailUseCase
-    let imageLoader: ImageLoading
-
-    static func makeDefault() -> AppEnvironment {
-        let dataSource = DefaultBookDataSource(urlSession: URLSession.shared)
-        let repository = DefaultBookRepository(dataSource: dataSource)
-        return AppEnvironment(
-            searchUseCase: DefaultSearchBooksUseCase(bookRepository: repository),
-            detailUseCase: DefaultFetchBookDetailUseCase(bookRepository: repository),
-            imageLoader: ImageService()
-        )
-    }
-}
 
 final class AppCoordinator {
     private let navigationController: UINavigationController
