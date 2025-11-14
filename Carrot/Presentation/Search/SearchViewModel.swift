@@ -128,7 +128,7 @@ final class SearchViewModel {
     private func handle(error: Error) {
         state.isLoading = false
         state.isPaginating = false
-        if (error as NSError).code == NSURLErrorCancelled { return }
+        if error is CancellationError { return }
         state.errorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
     }
 
