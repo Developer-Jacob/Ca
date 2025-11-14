@@ -7,7 +7,7 @@
 
 import Foundation
 
-actor ImageCacheProvider {
+final class ImageCacheProvider {
     private let diskCache: DiskCaching
     private let memoryCache: MemoryCaching
     private let configuration: ImageCacheConfiguration
@@ -33,9 +33,8 @@ actor ImageCacheProvider {
         }
         
         if let item = await diskCache.data(for: key, now: now) {
-            // 디스크만 존재시 메모리 업데이트
             print("DiskCache hit. key: \(key)")
-            await memoryCache.store(item.data, for: key)
+            await memoryCache.store(item.data, for: key)    // 디스크만 존재시 메모리 업데이트
             return item
         }
         return nil
@@ -46,7 +45,9 @@ actor ImageCacheProvider {
         
         await memoryCache.store(data, for: key)
         
-        await diskCache.store(data, for: key)
+        Task.detached(priority: .utility) { [weak self] in      // 디스크 캐시 우선순위 낮음
+            await self?.diskCache.store(data, for: key)
+        }
     }
 }
 
