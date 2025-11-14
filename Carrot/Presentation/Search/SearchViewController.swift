@@ -27,6 +27,9 @@ final class SearchViewController: UIViewController, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: SearchResultCell.reuseIdentifier, for: indexPath)
         guard let cell = cell as? SearchResultCell else { return UITableViewCell() }
         guard let self else { return UITableViewCell() }
+        cell.onTapStoreURL = { [weak self] url in
+            UIApplication.shared.open(url)
+        }
         cell.configure(with: item, imageLoader: self.imageLoader)
         return cell
     }

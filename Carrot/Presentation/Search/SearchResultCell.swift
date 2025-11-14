@@ -42,6 +42,18 @@ final class SearchResultCell: UITableViewCell {
         return label
     }()
 
+    private let urlButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("스토어로 이동", for: .normal)
+        button.contentHorizontalAlignment = .leading
+        button.isHidden = true
+        return button
+    }()
+
+    var onTapStoreURL: ((URL) -> Void)?
+    private var currentStoreURL: URL?
+
     private var imageTask: Task<Void, Never>?
     private var currentItemID: String?
 
@@ -49,6 +61,7 @@ final class SearchResultCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupLayout()
         accessibilityTraits = [.button]
+        urlButton.addTarget(self, action: #selector(didTapURLButton), for: .touchUpInside)
     }
 
     required init?(coder: NSCoder) {
@@ -61,6 +74,8 @@ final class SearchResultCell: UITableViewCell {
         imageTask = nil
         coverImageView.image = nil
         currentItemID = nil
+        urlButton.isHidden = true
+        currentStoreURL = nil
     }
 
     func configure(with item: SearchViewModel.Item, imageLoader: ImageLoading) {
@@ -69,6 +84,8 @@ final class SearchResultCell: UITableViewCell {
         subtitleLabel.text = item.subtitle.withEmpty
         priceLabel.text = item.price.withEmpty
         isbnLabel.text = "ISBN13: \(item.isbn13)"
+        currentStoreURL = item.storeURL
+        urlButton.isHidden = item.storeURL == nil
 
         imageTask?.cancel()
         imageTask = Task { [weak self] in
@@ -88,7 +105,7 @@ final class SearchResultCell: UITableViewCell {
     }
 
     private func setupLayout() {
-        let labelsStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, priceLabel, isbnLabel])
+        let labelsStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, priceLabel, isbnLabel, urlButton])
         labelsStack.axis = .vertical
         labelsStack.spacing = 3
         labelsStack.translatesAutoresizingMaskIntoConstraints = false
@@ -108,6 +125,11 @@ final class SearchResultCell: UITableViewCell {
             labelsStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
             labelsStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
         ])
+    }
+
+    @objc private func didTapURLButton() {
+        guard let url = currentStoreURL else { return }
+        onTapStoreURL?(url)
     }
 }
 
