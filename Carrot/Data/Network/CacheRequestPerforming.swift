@@ -41,7 +41,7 @@ struct ServerDrivenRequestPerformer: CacheRequestPerforming {
     ) async throws -> Data {
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
-              (200..<400).contains(httpResponse.statusCode) else {
+              (200..<300).contains(httpResponse.statusCode) else {
             throw APIError.invalidResponse
         }
         return data
@@ -91,7 +91,6 @@ struct CacheFirstRequestPerformer: CacheRequestPerforming {
         // 수동 캐시
         let cachedResponse = CachedURLResponse(response: httpResponse, data: data)
         cache.storeCachedResponse(cachedResponse, for: request)
-
         return data
     }
 }
