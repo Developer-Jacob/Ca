@@ -75,10 +75,14 @@ final class SearchResultCell: UITableViewCell {
             guard let self else { return }
             if let image = await imageLoader.loadImage(from: item.imageURL) {
                 guard self.currentItemID == item.id else { return }
-                self.coverImageView.image = image
+                await MainActor.run {
+                    self.coverImageView.image = image
+                }
             } else {
                 guard self.currentItemID == item.id else { return }
-                self.coverImageView.image = UIImage(systemName: "book")
+                await MainActor.run {
+                    self.coverImageView.image = UIImage(systemName: "book")
+                }
             }
         }
     }

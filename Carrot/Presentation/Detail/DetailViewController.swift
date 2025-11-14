@@ -170,7 +170,9 @@ final class BookDetailViewController: UIViewController {
                     self.coverImageView.image = image
                 }
             } else {
-                coverImageView.image = UIImage(systemName: "book")
+                await MainActor.run {
+                    self.coverImageView.image = UIImage(systemName: "book")
+                }
             }
         }
 
