@@ -59,14 +59,9 @@ extension SearchResponseDTO {
     func toDomain() -> SearchPage {
         let totalResults = Int(total) ?? 0
         let currentPage = Int(page) ?? 1
-        let pageSize = books.isEmpty ? 1 : books.count
-        let totalPages: Int
-        if totalResults == 0 {
-            totalPages = currentPage
-        } else {
-            let derived = Double(totalResults) / Double(pageSize)
-            totalPages = max(Int(ceil(derived)), currentPage)
-        }
+        let defaultPageSize = 10
+        let derived = Double(totalResults) / Double(defaultPageSize)
+        let totalPages = max(Int(ceil(derived)), currentPage)
         return SearchPage(
             books: books.map { $0.toDomain() },
             totalResults: totalResults,
@@ -75,6 +70,7 @@ extension SearchResponseDTO {
         )
     }
 }
+
 
 extension BookDetailDTO {
     func toDomain() -> BookDetail {

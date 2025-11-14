@@ -56,7 +56,6 @@ final actor ImageService: ImageLoading {
             guard let self else { return nil }
             defer { Task { await self.removeTask(for: url) } }
             do {
-                print("Carrot image cache: Remote fetch. key: \(url)")
                 let data = try await self.remote.fetchData(from: url)
                 await self.cache.store(data, for: url)
                 return data

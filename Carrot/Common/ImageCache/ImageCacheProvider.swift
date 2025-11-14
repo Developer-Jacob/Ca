@@ -28,12 +28,10 @@ final class ImageCacheProvider {
         let now = Date.now
         
         if let item = await memoryCache.data(for: key, now: now) {
-            print("MemoryCache hit. key: \(key)")
             return item
         }
         
         if let item = await diskCache.data(for: key, now: now) {
-            print("DiskCache hit. key: \(key)")
             await memoryCache.store(item.data, for: key)    // 디스크만 존재시 메모리 업데이트
             return item
         }
