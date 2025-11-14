@@ -54,7 +54,7 @@ final class UseCaseTests: XCTestCase {
             storeURL: nil,
             pdfs: []
         )
-        let useCase = DefaultFetchBookDetailUseCase(repository: repository)
+        let useCase = DefaultFetchBookDetailUseCase(bookRepository: repository)
 
         let detail = try await useCase.execute(id: "456")
 
