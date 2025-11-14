@@ -19,9 +19,15 @@ enum ItBookAPI: BaseAPI {
     var path: String {
         switch self {
         case .search(query: let query, page: let page):
-            return "search/\(query)/\(page)"
+            return "search/\(query.encodedForPath)/\(page)"
         case .detail(id: let id):
-            return "books/\(id)"
+            return "books/\(id.encodedForPath)"
         }
+    }
+}
+
+private extension String {
+    var encodedForPath: String {
+        self.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? self
     }
 }
