@@ -166,7 +166,9 @@ final class BookDetailViewController: UIViewController {
         imageTask = Task { [weak self] in
             guard let self else { return }
             if let image = await imageLoader.loadImage(from: state.imageURL) {
-                coverImageView.image = image
+                await MainActor.run {
+                    self.coverImageView.image = image
+                }
             } else {
                 coverImageView.image = UIImage(systemName: "book")
             }
