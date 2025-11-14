@@ -40,6 +40,7 @@ final class SearchViewModel {
     private var totalPages = 1
     private var books: [BookSummary] = []
     private var searchTask: Task<Void, Never>?
+    private var paginationTask: Task<Void, Never>?
     private var activeQuery: String = ""
 
     init(searchUseCase: SearchBooksUseCase) {
@@ -60,6 +61,7 @@ final class SearchViewModel {
             return
         }
         searchTask?.cancel()
+        paginationTask?.cancel()
         currentPage = 1
         totalPages = 1
         books = []
@@ -84,7 +86,7 @@ final class SearchViewModel {
         guard currentIndex >= state.items.count - Const.paginationThreshold else { return }
         guard !state.isPaginating, currentPage < totalPages else { return }
         state.isPaginating = true
-        Task { [weak self] in
+        paginationTask = Task { [weak self] in
             guard let self else { return }
             do {
                 let nextPage = currentPage + 1
@@ -134,6 +136,7 @@ final class SearchViewModel {
 
     private func reset() {
         searchTask?.cancel()
+        paginationTask?.cancel()
         books = []
         state = State(query: "")
         currentPage = 1
